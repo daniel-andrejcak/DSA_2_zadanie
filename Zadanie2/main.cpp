@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <cstring>
 #include <iostream>
 #include <vector>
 #include <sstream>
 #include <set>
+#include <bitset>
+
 
 #define NUMTOLETTER 49
 #define CHARTOINDEX 97
@@ -355,7 +358,7 @@ BDD *BDD_create_with_best_order (std::string bfunkcia)
 }
 
 //char *vstupy treba zadat ako string cisel, kde cislo na prvom indexe je hodnota premennej 'a', na druhom indexe premenna 'b',... 
-char BDD_use (BDD *bdd, char *vstupy)
+char BDD_use (BDD *bdd, std::string vstupy)
 {
     NODE *node = bdd->root;
     int index = 0;
@@ -396,21 +399,12 @@ char BDD_use (BDD *bdd, char *vstupy)
 
 void test(BDD *bdd)
 {   
-    char vstupy[3];
-
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < pow(2, bdd->varCount); i++)
     {
-        for (int j = 0; j < 2; j++)
-        {
-            for (int k = 0; k < 2; k++)
-            {
-                vstupy[0] = 48 + i;
-                vstupy[1] = 48 + j;
-                vstupy[2] = 48 + k;
+        std::string values = std::bitset<16>(i).to_string();
+        values.erase(values.begin(), values.end() - bdd->varCount);
 
-                std::cout << BDD_use(bdd, vstupy) << std::endl;
-            }
-        }
+        std::cout << BDD_use(bdd, values) << std::endl;
     }
 }
 
@@ -418,9 +412,11 @@ void test(BDD *bdd)
 uz to vie vytvorit neredukovany bdd
 uz to vie dat koncove uzly aj ku inej premennej ako poslednej - to je dobre, tak to ma byt - !!!nemenit
 uz to redukuje koncove uzly
+uz to vie pouzit bdd
+uz sa to tvari ze to vie zrobit best order, ale to je klam
+uz aj test() fahci popici
 */
 
-//TODO doplnit aby vsetky nodes dostali true alebo false, aj ked vetva skonci skor ako pri poslednej premennej
 int main ()
 {
     InitLeafNodes();
@@ -428,11 +424,11 @@ int main ()
     //pre tieto vstup to fahci...paraada
     //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc";
     //std::string input = "ab\'c\'+abc+a\'bc\'+a\'b\'c";
+    //std::string input = "ab+bc+a\'b\'c\'";
 
-    std::string input = "ab+bc+a\'b\'c\'";
+    std::string input = "ab+cd+ef+gh";
 
-
-    std::string ciselka = "012";
+    std::string ciselka = "01234567";
 
     BDD *bdd = BDD_create(input, ciselka);
     
@@ -441,8 +437,6 @@ int main ()
     std::cout << "\npozor kurvaa " << countVariables(input) << std::endl;
     std::cout << "pocet uzlov ty pico " << bdd->nodeCount << std::endl;
     std::cout << "prva premenna ty pico " << bdd->root->var << std::endl;
-    //std::cout << BDD_use(bdd, "11");
-
 
     return 0;
 }
