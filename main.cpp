@@ -126,6 +126,64 @@ int checkForSingleNegVar(std::vector<std::string> myVector)
     return 1;
 }
 
+void deleteClause(std::vector<std::string>& myVector, char var[2])
+{
+    for (int i = 0; i < myVector.size(); i++)
+    {
+        int index = myVector.at(i).find(var[0]);
+
+        if (index != -1)
+        {
+            if (var[1] == '\'')
+            {
+                if (myVector.at(i)[index + 1] == '\'')
+                {
+                    myVector.erase(myVector.begin() + i);
+                    i--;
+                }
+                
+            }
+            else
+            {
+                if (myVector.at(i)[index + 1] != '\'')
+                {
+                    myVector.erase(myVector.begin() + i);
+                    i--;
+                }
+            }
+            
+        }
+    }
+}
+
+void deleteSingleVar(std::vector<std::string>& myVector, char var[2])
+{
+    for (int i = 0; i < myVector.size(); i++)
+    {
+        int index = myVector.at(i).find(var[0]);
+
+        if (index != -1)
+        {
+            if (var[1] == '\'' && myVector.at(i)[index + 1] == '\'')
+            {
+                myVector.at(i).erase(i, 2);        
+            }
+            else if (var[1] != '\'' && myVector.at(i)[index + 1] != '\'')
+            {
+                
+                myVector.at(i).erase(i, 1);
+                
+            }
+
+            if (myVector.at(i).size() == 0)
+            {
+                myVector.erase(myVector.begin() + i);
+                i--;
+            }
+        }
+    }
+}
+
 void deleteNegCharFrom(std::vector<std::string>& myVector, char Char)
 {
     for (int i = 0; i < myVector.size(); i++)
