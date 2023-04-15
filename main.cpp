@@ -121,6 +121,11 @@ int checkIfSingleVar(std::vector<std::string> myVector)
     return -1;
 }
 
+int checkForSingleNegVar(std::vector<std::string> myVector)
+{
+    return 1;
+}
+
 void deleteNegCharFrom(std::vector<std::string>& myVector, char Char)
 {
     for (int i = 0; i < myVector.size(); i++)
@@ -138,7 +143,8 @@ void deleteNegCharFrom(std::vector<std::string>& myVector, char Char)
                 myVector.erase(myVector.begin() + i);
                 
             }
-            else if (myVector.at(i).size() == 0)
+            
+            if (myVector.size() && myVector.at(i).size() == 0)
             {
                 myVector.erase(myVector.begin() + i);
             }
@@ -167,14 +173,18 @@ void deleteCharFrom(std::vector<std::string>& myVector, char Char)
             else if (myVector.at(i)[index] == '\'')
             {
                 myVector.at(i).erase(index, 1);
+                
             }
-            else if (myVector.at(i).size() == 0)
+
+            if (myVector.size() && myVector.at(i).size() == 0)
             {
                 myVector.erase(myVector.begin() + i);
             }
 
             i--;
         }
+
+        std::cout << "velkost vektora je: " << myVector.size() << std::endl;
     }
 }
 
@@ -247,6 +257,8 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
             printVector(products);
             std::cout << std::endl;          
             deleteCharFrom(products, products.at(singleVarIndex)[0]);
+            std::cout << "ostal tam: ";
+            printVector(products);
             if (products.size() != 0)
             {
                 node->low = recMakeBdd(poradie, products, indexPoradia);
@@ -256,9 +268,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
                 node->low = falseNode;
                 falseNodeUsed = true;  
             }
-            
         }
-        
 
         return node;
     }
@@ -276,6 +286,8 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     {        
         //printf("%s %d", products[i], poradie[indexPoradia]);
         varIndex = products.at(i).find(poradie[indexPoradia] + NUMTOLETTER);
+        std::cout << "hlada: "<< poradie[indexPoradia] + NUMTOLETTER << "v: ";
+        printVector(products);
         //printf("%d", varIndex);
 
         if (varIndex != -1)
@@ -472,9 +484,8 @@ int main ()
     //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc";
     //std::string input = "ab+cd+ef+gh";
 
-    std::string input = "a+a\'b";
-
-    std::string ciselka = "01";
+    std::string input = "a+b";
+    std::string ciselka = "10";
 
     BDD *bdd = BDD_create(input, ciselka);
     
