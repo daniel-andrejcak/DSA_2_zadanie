@@ -33,6 +33,7 @@ typedef struct hashNode
 
 NODE *trueNode;
 NODE *falseNode;
+NODE *globalNode;
 
 int nodeCount;
 bool trueNodeUsed;
@@ -103,6 +104,29 @@ int checkForCredibility(std::vector<std::string> myVector, int index)
     }
 
     return 1;
+}
+
+int ifSingleVar(std::vector<std::string> myVector, char var)
+{
+    for (int i = 0; i < myVector.size(); i++)
+    {
+        int found = myVector.at(i).find(var);
+
+        if (found != -1 && found == 0)
+        {
+            if (myVector.at(i).size() == 2 && myVector.at(i)[1] == '\'')
+            {
+                return 1;
+            }
+            else if (myVector.at(i).size() == 1)
+            {
+                return 0;
+            }
+        }
+        
+    }
+    
+    return -1;
 }
 
 int checkIfSingleVar(std::vector<std::string> myVector)
@@ -248,7 +272,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 {
     NODE *node = searchInHash(products);
 
-    /*if (node)
+    if (node)
     {
         std::cout << "uz sa nasla taka "; 
         printVector(products);
@@ -256,17 +280,86 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 
         return node;
     
-    }*/
+    }
     
     bool falseVar = true;
 
-    int singleVarIndex = checkIfSingleVar(products);
+    int singleVarIndex = ifSingleVar(products, poradie[indexPoradia] + NUMTOLETTER);
+
+    if (singleVarIndex != -1)
+    {
+        std::cout << "nasla sa samotna premenna " << (char)(poradie[indexPoradia] + NUMTOLETTER) << "vo vektore: ";
+        printVector(products);
+        std::cout << std::endl;
+
+        char var[2];
+
+        var[0] = poradie[indexPoradia] + NUMTOLETTER;
+
+        trueNodeUsed = true;
+
+        NODE *node = createNode(poradie[indexPoradia] + NUMTOLETTER);
+
+        if (singleVarIndex == 0)
+        {
+            node->high = trueNode;
+            
+            var[1] = '0';
+        }
+        else
+        {
+            node->low = trueNode;
+
+            var[1] = '\'';
+        }
+
+        deleteClause(products, var);
+
+        int originalSize = products.size();
+
+        if (originalSize == 0)
+        {
+            singleVarIndex == 0 ? node->low = falseNode : node->high = falseNode;
+
+            falseNodeUsed = true;
+
+            return node;
+        }
+        
+        singleVarIndex == 0 ? var[1] = '\'' : var[1] = '0';
+
+        deleteSingleVar(products, var);
+
+        if (products.size() < originalSize)
+        {
+            free(node);
+            nodeCount--;
+
+            return trueNode;
+        }    
+
+        if (singleVarIndex == 0)
+        {
+            node->low = recMakeBdd(poradie, products, indexPoradia);
+
+            //insertToHash(products, node->low);
+        }
+        else
+        {
+            node->high = recMakeBdd(poradie, products, indexPoradia);
+
+            //insertToHash(products, node->high);
+        }
+        
+        return node;
+    }
+    
 
     std::cout << "index: " <<  indexPoradia << std::endl;
     std::cout << "vector size: " <<  products.size() << std::endl;
 
     //zisti, ci sa vo funkcii nachádza samotna premenna, co by ovplyvnila celu funkciu
-    if (singleVarIndex != -1)
+    /*if (singleVarIndex != -1)
     {
         char var[2];
 
@@ -316,6 +409,8 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 
                         return trueNode;
                     }
+
+                    //insertToHash(products, node->high);
                 }                
             }
         }
@@ -357,6 +452,8 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 
                         return trueNode;
                     }
+
+                    //insertToHash(products, node->low);
                 }                
             }
         }
@@ -364,7 +461,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         //insertToHash(products, node);
         return node;
     }
-    
+    */
     std::size_t varIndex;
     
     std::vector<std::string> lowExpresion;
@@ -434,6 +531,8 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         std::cout << "dalsia uroven pre low" << indexPoradia + 1 << " velkost je" << lowExpresion.size() << std::endl;
         printVector(lowExpresion);
         node->low = recMakeBdd(poradie, lowExpresion, indexPoradia + 1);
+
+        insertToHash(lowExpresion, node->low);
     }else
     {
         node->low = falseNode;
@@ -446,13 +545,14 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         std::cout << "dalsia uroven pre high" << indexPoradia + 1 << " velkost je" << highExpresion.size() << std::endl;
         printVector(highExpresion);
         node->high = recMakeBdd(poradie, highExpresion, indexPoradia + 1);
+
+        insertToHash(highExpresion, node->high);
     }else
     {
         node->high = falseNode;
         falseNodeUsed = true;
     }
     
-
 
     return node;
 }
@@ -476,7 +576,9 @@ BDD *BDD_create(std::string bfunkcia, std::string poradie)
 
     printf("pohoda uz to pracuje\n");
     //vytvorenie datovej struktury BDD
-    NODE *root = recMakeBdd(poradie, products, 0);
+    globalNode = recMakeBdd(poradie, products, 0);
+    
+    NODE *root = globalNode;
 
     //vytvorenie "objektu" BDD
     BDD *bdd = (BDD *)malloc(sizeof(BDD));
@@ -588,19 +690,21 @@ int main ()
 
     //pre tieto vstup to fahci...paraada
     //std::string input = "ab\'c\'+abc+a\'bc\'+a\'b\'c";
-    std::string input = "ab+ac+bc";
+    //std::string input = "ab+ac+bc";
     //std::string input = "ab+bc+a\'b\'c\'";
     //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc";
     //std::string input = "abc+bc"; //kontrola ci funguje ak sa low a high expression rovnaju - rovnaju sa pico
-    //std::string input = "ab+cd+ef+gh";
+    std::string input = "ab+cd+ef+gh";
     
-    //std::string input = "ab+a\'+b\'";
+    //std::string input = "a+a\'+b";
 
-    std::string ciselka = "012";
+    std::string ciselka = "02461357";
 
     BDD *bdd = BDD_create(input, ciselka);
     
     std::cout << std::endl;
+
+    //visualize();
     test(bdd);
 
     std::cout << "\npozor kurvaa " << countVariables(input) << std::endl;
@@ -620,7 +724,7 @@ int main ()
     std::cout << node->var << " prva premenna pico" << std::endl;
     std::cout << searchNode->var << " druha premenna pico" << std::endl;*/
 
-
+    CHT_FreeMem();
     return 0;
 }
 
