@@ -280,7 +280,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     if (node)
     {
         std::cout << "uz sa nasla taka "; 
-        printVector(products);
+        //printVector(products);
         std::cout << "pre premennu " << node->var << std::endl;
 
         return node;
@@ -294,7 +294,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     if (singleVarIndex != -1)
     {
         std::cout << "nasla sa samotna premenna " << (char)(poradie[indexPoradia]) << " vo vektore: ";
-        printVector(products);
+        //printVector(products);
         std::cout << std::endl;
 
         char var[2];
@@ -323,7 +323,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         deleteClause(products, var);
     
         std::cout << "obsah vektora po mazani klauzul je: " << std::endl;
-        printVector(products);
+        //printVector(products);
 
 
         int originalSize = products.size();
@@ -342,7 +342,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         deleteSingleVar(products, var);
 
         std::cout << "obsah vectora po mazani premennej je: " << std::endl;
-        printVector(products);
+        //printVector(products);
 
         if (products.size() < originalSize)
         {
@@ -501,7 +501,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         //printf("%s %d", products[i], poradie[indexPoradia]);
         varIndex = products.at(i).find(poradie[indexPoradia]);
         std::cout << "hlada: "<< (char)(poradie[indexPoradia]) << " v: ";
-        printVector(products);
+        //printVector(products);
         //printf("%d", varIndex);
 
         if (varIndex != -1)
@@ -577,8 +577,8 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         indexPoradia--;
 
     std::cout << "obsah vectorov je: " << std::endl;
-    printVector(lowExpresion);
-    printVector(highExpresion);
+    //printVector(lowExpresion);
+    //printVector(highExpresion);
 
     //insertToHash(products, node);
 
@@ -596,7 +596,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     if (lowExpresion.size() != 0)
     {
         std::cout << "dalsia uroven pre low" << indexPoradia + 1 << " velkost je" << lowExpresion.size() << std::endl;
-        printVector(lowExpresion);
+        //printVector(lowExpresion);
         node->low = recMakeBdd(poradie, lowExpresion, indexPoradia + 1);
 
         insertToHash(lowExpresion, node->low);
@@ -610,7 +610,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     if (highExpresion.size() != 0)
     {
         std::cout << "dalsia uroven pre high" << indexPoradia + 1 << " velkost je" << highExpresion.size() << std::endl;
-        printVector(highExpresion);
+        //printVector(highExpresion);
         node->high = recMakeBdd(poradie, highExpresion, indexPoradia + 1);
 
         insertToHash(highExpresion, node->high);
@@ -755,7 +755,6 @@ void freeMem(NODE *node)
 }*/
 
 
-
 /*
 uz to vie vytvorit neredukovany bdd
 uz to vie dat koncove uzly aj ku inej premennej ako poslednej - to je dobre, tak to ma byt - !!!nemenit
@@ -774,11 +773,14 @@ int main ()
     //std::string input = "ab\'c\'+abc+a\'bc\'+a\'b\'c";
     //std::string input = "ab+ac+bc";
     //std::string input = "ab+bc+a\'b\'c\'";
-    //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc";
     //std::string input = "abc+bc"; //kontrola ci funguje ak sa low a high expression rovnaju - rovnaju sa
+    //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc";
     //std::string input = "abc+a\'c+b+b\'"; //skusa tautologie
+    //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc+a\'b\'c\'"; //aj komplikovanejsia tautologia funguje
     //std::string input = "ab+cd+ef+gh";
-    std::string input = "abc";
+    std::string input = "abc"; //uz to zvladne aj jednu klauzulu
+    //std::string input = "aa\'bc"; //skuska kontradicie
+
 
     std::string postupnost = "abc";
 
@@ -807,6 +809,11 @@ int main ()
     std::cout << searchNode->var << " druha premenna pico" << std::endl;*/
 
     CHT_FreeMem();
+    free(trueNode);
+    free(falseNode);
+    free(bdd->root);
+    free(bdd);
+
     return 0;
 }
 
