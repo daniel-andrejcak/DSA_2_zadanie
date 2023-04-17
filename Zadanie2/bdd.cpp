@@ -219,7 +219,7 @@ NODE *searchInHash(std::vector<std::string> myVector)
 
     std::set<std::string> set(myVector.begin(), myVector.end());
 
-    std::vector<std::string> sortedVector(set.begin(), set.end());
+    std::vector<std::string> sortedVector(set.begin(), set.end());    
 
     NODE *node = CHT_Search(sortedVector);
 

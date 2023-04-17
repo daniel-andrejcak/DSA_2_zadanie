@@ -33,7 +33,7 @@ static void TableInit(HASHNODE ***table)
 
 static HASHNODE *CreateNode(std::vector<std::string> expresion, NODE *node)
 {
-    HASHNODE *element = (HASHNODE *)malloc(sizeof(HASHNODE));
+    HASHNODE *element = new HASHNODE;
     
     if (!element)
     {
@@ -53,14 +53,13 @@ static int HashFunction(std::vector<std::string> expresion)
 {
     int i = 0;
     unsigned long long hash = 0;
-    std::vector<std::string>::iterator it;
 
 
-    for (it = expresion.begin(); it != expresion.end(); ++it)
+    for (int i = 0; i < expresion.size(); i++)
     {
-        for (int j = 0; j < (*it).size(); j++)
+        for (int j = 0; j < expresion.at(i).size(); j++)
         {
-            hash = hash * 33 + (*it)[j];
+            hash = hash * 33 + expresion.at(i)[j];
         }
     }
 
@@ -243,4 +242,3 @@ void visualize()
     }
     
 }
-
