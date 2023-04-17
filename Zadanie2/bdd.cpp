@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
 #include <cstring>
 #include <iostream>
@@ -270,6 +269,12 @@ NODE *createNode(char var)
 
 NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int indexPoradia)
 {
+    if (products.size() == 0)
+    {
+        falseNodeUsed = true;
+        return falseNode;
+    }
+    
     NODE *node = searchInHash(products);
 
     if (node)
@@ -284,21 +289,21 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     
     bool falseVar = true;
 
-    int singleVarIndex = ifSingleVar(products, poradie[indexPoradia] + NUMTOLETTER);
+    int singleVarIndex = ifSingleVar(products, poradie[indexPoradia]);
 
     if (singleVarIndex != -1)
     {
-        std::cout << "nasla sa samotna premenna " << (char)(poradie[indexPoradia] + NUMTOLETTER) << " vo vektore: ";
+        std::cout << "nasla sa samotna premenna " << (char)(poradie[indexPoradia]) << " vo vektore: ";
         printVector(products);
         std::cout << std::endl;
 
         char var[2];
 
-        var[0] = poradie[indexPoradia] + NUMTOLETTER;
+        var[0] = poradie[indexPoradia];
 
         trueNodeUsed = true;
 
-        NODE *node = createNode(poradie[indexPoradia] + NUMTOLETTER);
+        NODE *node = createNode(poradie[indexPoradia]);
 
         if (singleVarIndex == 0)
         {
@@ -386,7 +391,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         var[0] = products.at(singleVarIndex)[0];
         //poradie.erase(indexPoradia, 1); 
 
-        //indexPoradia = poradie.find(products.at(singleVarIndex)[0] - NUMTOLETTER);
+        //indexPoradia = poradie.find(products.at(singleVarIndex)[0]);
 
         std::cout << "nasla sa samotna premenna " << products.at(singleVarIndex) << std::endl;        
 
@@ -488,14 +493,14 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     std::vector<std::string> highExpresion;
 
     
-    node = createNode(poradie[indexPoradia] + NUMTOLETTER);    
+    node = createNode(poradie[indexPoradia]);    
 
     //shannon expansion + rozdelenie co ide do low a co do high
     for (int i = 0; i < products.size(); i++)
     {        
         //printf("%s %d", products[i], poradie[indexPoradia]);
-        varIndex = products.at(i).find(poradie[indexPoradia] + NUMTOLETTER);
-        std::cout << "hlada: "<< (char)(poradie[indexPoradia] + NUMTOLETTER) << " v: ";
+        varIndex = products.at(i).find(poradie[indexPoradia]);
+        std::cout << "hlada: "<< (char)(poradie[indexPoradia]) << " v: ";
         printVector(products);
         //printf("%d", varIndex);
 
@@ -525,6 +530,48 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
             highExpresion.push_back(products[i]);
         }
     }
+
+    //osetrenie toho, ked sa v klauzule nachadzaju 2 rovnake premenne
+    for (int i = 0; i < lowExpresion.size(); i++)
+    {
+        varIndex = lowExpresion.at(i).find(poradie[indexPoradia]);
+
+        if (varIndex != -1)
+        {
+            std::cout << "nasla sa rovnaka premenna v nejakej klauzule" << std::endl;
+
+            if (lowExpresion.at(i)[varIndex + 1] == '\'')
+            {
+                lowExpresion.at(i).erase(varIndex, 2); 
+            }
+            
+            if (lowExpresion.at(i)[varIndex + 1] != '\'' || lowExpresion.at(i).size() == 0)
+            {
+                lowExpresion.erase(lowExpresion.begin() + i);
+            }
+        }
+    }
+
+    for (int i = 0; i < highExpresion.size(); i++)
+    {
+        varIndex = highExpresion.at(i).find(poradie[indexPoradia]);
+
+        if (varIndex != -1)
+        {
+            std::cout << "nasla sa rovnaka premenna v nejakej klauzule" << std::endl;
+
+            if (highExpresion.at(i)[varIndex + 1] != '\'')
+            {
+                highExpresion.at(i).erase(varIndex, 2); 
+            }
+            
+            if (highExpresion.at(i)[varIndex + 1] == '\'' || highExpresion.at(i).size() == 0)
+            {
+                highExpresion.erase(highExpresion.begin() + i);
+            }
+        }
+    }
+    
 
     if(!falseVar)
         indexPoradia--;
@@ -702,6 +749,12 @@ void freeMem(NODE *node)
     node = NULL;
 }
 
+/*std::string randomDNF(int varCount)
+{
+
+}*/
+
+
 
 /*
 uz to vie vytvorit neredukovany bdd
@@ -724,12 +777,12 @@ int main ()
     //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc";
     //std::string input = "abc+bc"; //kontrola ci funguje ak sa low a high expression rovnaju - rovnaju sa
     //std::string input = "abc+a\'c+b+b\'"; //skusa tautologie
-    std::string input = "ab+cd+ef+gh";
-    
+    //std::string input = "ab+cd+ef+gh";
+    std::string input = "abc";
 
-    std::string ciselka = "01234567";
+    std::string postupnost = "abc";
 
-    BDD *bdd = BDD_create(input, ciselka);
+    BDD *bdd = BDD_create(input, postupnost);
     
     std::cout << std::endl;
 
