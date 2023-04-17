@@ -175,7 +175,7 @@ void deleteClause(std::vector<std::string>& myVector, char var[2])
             }
             else
             {
-                if (myVector.at(i)[index + 1] != '\'')
+                if (myVector.at(i)[index + 1] != '\'' || myVector.at(i).size() == 1)
                 {
                     myVector.erase(myVector.begin() + i);
                     i--;
@@ -196,12 +196,12 @@ void deleteSingleVar(std::vector<std::string>& myVector, char var[2])
         {
             if (var[1] == '\'' && myVector.at(i)[index + 1] == '\'')
             {
-                myVector.at(i).erase(i, 2);        
+                myVector.at(i).erase(index, 2);        
             }
             else if (var[1] != '\'' && myVector.at(i)[index + 1] != '\'')
             {
                 
-                myVector.at(i).erase(i, 1);
+                myVector.at(i).erase(index, 1);
                 
             }
 
@@ -288,7 +288,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 
     if (singleVarIndex != -1)
     {
-        std::cout << "nasla sa samotna premenna " << (char)(poradie[indexPoradia] + NUMTOLETTER) << "vo vektore: ";
+        std::cout << "nasla sa samotna premenna " << (char)(poradie[indexPoradia] + NUMTOLETTER) << " vo vektore: ";
         printVector(products);
         std::cout << std::endl;
 
@@ -302,18 +302,24 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 
         if (singleVarIndex == 0)
         {
+            std::cout << "nie je negovana" << std::endl;
             node->high = trueNode;
             
             var[1] = '0';
         }
         else
         {
+            std::cout << "je negovana" << std::endl;
             node->low = trueNode;
 
             var[1] = '\'';
         }
 
         deleteClause(products, var);
+    
+        std::cout << "obsah vektora po mazani klauzul je: " << std::endl;
+        printVector(products);
+
 
         int originalSize = products.size();
 
@@ -330,6 +336,9 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 
         deleteSingleVar(products, var);
 
+        std::cout << "obsah vectora po mazani premennej je: " << std::endl;
+        printVector(products);
+
         if (products.size() < originalSize)
         {
             free(node);
@@ -337,6 +346,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 
             return trueNode;
         }    
+
 
         if (singleVarIndex == 0)
         {
@@ -350,6 +360,16 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 
             //insertToHash(products, node->high);
         }
+
+        /*if(node->low == node->high)
+        {
+            NODE *temp = node->low;
+
+            free(node);
+            nodeCount--;
+
+            return temp;
+        }*/
         
         return node;
     }
@@ -552,6 +572,15 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         node->high = falseNode;
         falseNodeUsed = true;
     }
+
+    if(node->low == node->high)
+    {
+        NODE *temp = node->low;
+        free(node);
+        nodeCount--;
+
+        return temp;
+    }
     
 
     return node;
@@ -693,12 +722,12 @@ int main ()
     //std::string input = "ab+ac+bc";
     //std::string input = "ab+bc+a\'b\'c\'";
     //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc";
-    //std::string input = "abc+bc"; //kontrola ci funguje ak sa low a high expression rovnaju - rovnaju sa pico
+    //std::string input = "abc+bc"; //kontrola ci funguje ak sa low a high expression rovnaju - rovnaju sa
+    //std::string input = "abc+a\'c+b+b\'"; //skusa tautologie
     std::string input = "ab+cd+ef+gh";
     
-    //std::string input = "a+a\'+b";
 
-    std::string ciselka = "02461357";
+    std::string ciselka = "01234567";
 
     BDD *bdd = BDD_create(input, ciselka);
     
@@ -707,8 +736,8 @@ int main ()
     //visualize();
     test(bdd);
 
-    std::cout << "\npozor kurvaa " << countVariables(input) << std::endl;
-    std::cout << "pocet uzlov ty pico " << bdd->nodeCount << std::endl;
+    std::cout << "\npocet premennych " << countVariables(input) << std::endl;
+    std::cout << "pocet uzlov " << bdd->nodeCount << std::endl;
     //freeMem(bdd->root);
 
 
