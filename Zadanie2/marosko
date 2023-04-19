@@ -12,3 +12,113 @@
 0001000100011111000100010001111100010001000111111111111111111111000100010001111100010001000111110001000100011111111111111111111100010001000111110001000100011111000100010001111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 0001000100011111000100010001111100010001000111111111111111111111000100010001111100010001000111110001000100011111111111111111111100010001000111110001000100011111000100010001111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 0001000100011111000100010001111100010001000111111111111111111111000100010001111100010001000111110001000100011111111111111111111100010001000111110001000100011111000100010001111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+//abeceda je {a, b, c, d, e, f, g}
+
+(start,a) = (prvyVyskyt_a,A,R) 
+(start,b) = (prvyVyskyt_b,B,R)
+(start,c) = (prvyVyskyt_c,C,R)
+(start,d) = (prvyVyskyt_d,D,R)
+(start,e) = (prvyVyskyt_e,E,R)
+(start,f) = (prvyVyskyt_f,F,R)
+(start,g) = (prvyVyskyt_g,G,R)
+(start, $) = (qf, $, R)
+
+prvyVyskytX = {a,b,c,d,e,f,g,A,B,C,D,E,F,G,$,1}
+(prvyVyskyt_a, Blank) = (prvaJednotka_a, a, R)
+(prvyVyskyt_a, prvyVyskytX) = (prvyVyskyt_a, prvyVyskytX, R)
+
+(prvyVyskyt_b, Blank) = (prvaJednotka_b, b, R)
+(prvyVyskyt_b, prvyVyskytX) = (prvyVyskyt_b, prvyVyskytX, R)
+
+(prvyVyskyt_c, Blank) = (prvaJednotka_c, c, R)
+(prvyVyskyt_c, prvyVyskytX) = (prvyVyskyt_c, prvyVyskytX, R)
+
+(prvyVyskyt_d, Blank) = (prvaJednotka_d, d, R)
+(prvyVyskyt_d, prvyVyskytX) = (prvyVyskyt_d, prvyVyskytX, R)
+
+(prvyVyskyt_e, Blank) = (prvaJednotka_e, e, R)
+(prvyVyskyt_e, prvyVyskytX) = (prvyVyskyt_e, prvyVyskytX, R)
+
+(prvyVyskyt_f, Blank) = (prvaJednotka_f, f, R)
+(prvyVyskyt_f, prvyVyskytX) = (prvyVyskyt_f, prvyVyskytX, R)
+
+(prvyVyskyt_g, Blank) = (prvaJednotka_g, g, R)
+(prvyVyskyt_g, prvyVyskytX) = (prvyVyskyt_g, prvyVyskytX, R)
+
+
+(prvaJednotka_a, Blank) = (najdiUzZapoc_a, 1, L)
+(prvaJednotka_b, Blank) = (najdiUzZapoc_b, 1, L)
+(prvaJednotka_c, Blank) = (najdiUzZapoc_c, 1, L)
+(prvaJednotka_d, Blank) = (najdiUzZapoc_d, 1, L)
+(prvaJednotka_e, Blank) = (najdiUzZapoc_e, 1, L)
+(prvaJednotka_f, Blank) = (najdiUzZapoc_f, 1, L)
+(prvaJednotka_g, Blank) = (najdiUzZapoc_g, 1, L)
+
+
+najdiUzZapoc_aX = {a,b,c,d,e,f,g,B,C,D,E,F,G,$,1}
+(najdiUzZapoc_a, A) = (najdi_a, A, R)
+(najdiUzZapoc_a, najdiUzZapoc_aX) = (najdiUzZapoc_a, najdiUzZapoc_aX, L)
+
+najdiUzZapoc_bX = {a,b,c,d,e,f,g,A,C,D,E,F,G,$,1}
+(najdiUzZapoc_b, B) = (najdi_b, B, R)
+(najdiUzZapoc_b, najdiUzZapoc_bX) = (najdiUzZapoc_b, najdiUzZapoc_bX, L)
+
+
+najdiUzZapoc_cX = {a,b,c,d,e,f,g,A,B,D,E,F,G,$,1}
+(najdiUzZapoc_c, C) = (najdi_c, C, R)
+(najdiUzZapoc_c, najdiUzZapoc_cX) = (najdiUzZapoc_c, najdiUzZapoc_cX, L)
+
+
+najdiUzZapoc_dX = {a,b,c,d,e,f,g,A,B,C,E,F,G,$,1}
+(najdiUzZapoc_d, D) = (najdi_d, D, R)
+(najdiUzZapoc_d, najdiUzZapoc_dX) = (najdiUzZapoc_d, najdiUzZapoc_dX, L)
+
+
+najdiUzZapoc_eX = {a,b,c,d,e,f,g,A,B,C,D,F,G,$,1}
+(najdiUzZapoc_e, E) = (najdi_e, E, R)
+(najdiUzZapoc_e, najdiUzZapoc_eX) = (najdiUzZapoc_e, najdiUzZapoc_eX, L)
+
+
+najdiUzZapoc_fX = {a,b,c,d,e,f,g,A,B,C,D,E,G,$,1}
+(najdiUzZapoc_f, F) = (najdi_f, F, R)
+(najdiUzZapoc_,f najdiUzZapoc_fX) = (najdiUzZapoc_f, najdiUzZapoc_fX, L)
+
+
+najdiUzZapoc_gX = {a,b,c,d,e,f,g,A,B,C,D,E,F,$,1}
+(najdiUzZapoc_g, G) = (najdi_g, G, R)
+(najdiUzZapoc_g, najdiUzZapoc_gX) = (najdiUzZapoc_g, najdiUzZapoc_gX, L)
+
+
+
+
+(najdi_a, a) = (zapocitaj_a, A, R)
+(najdi_b, b) = (zapocitaj_b, B, R)
+(najdi_c, c) = (zapocitaj_c, C, R)
+(najdi_d, d) = (zapocitaj_d, D, R)
+(najdi_e, e) = (zapocitaj_e, E, R)
+(najdi_f, f) = (zapocitaj_f, F, R)
+(najdi_g, g) = (zapocitaj_g, G, R)
+
+(najdi_a, $) = (return, $, L)
+(najdi_b, $) = (return, $, L)
+(najdi_c, $) = (return, $, L)
+(najdi_d, $) = (return, $, L)
+(najdi_e, $) = (return, $, L)
+(najdi_f, $) = (return, $, L)
+(najdi_g, $) = (return, $, L)
+
+(zapocitaj_a, Blank) = (najdiUzZapoc_a, 1, L)
+(zapocitaj_b, Blank) = (najdiUzZapoc_b, 1, L)
+(zapocitaj_c, Blank) = (najdiUzZapoc_c, 1, L)
+(zapocitaj_d, Blank) = (najdiUzZapoc_d, 1, L)
+(zapocitaj_e, Blank) = (najdiUzZapoc_e, 1, L)
+(zapocitaj_f, Blank) = (najdiUzZapoc_f, 1, L)
+(zapocitaj_g, Blank) = (najdiUzZapoc_g, 1, L)
+
+
+(return, Blank) = (start, Blank, R)
+
+
+
+
+

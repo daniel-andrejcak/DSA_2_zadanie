@@ -157,7 +157,6 @@ static void Insert(HASHNODE ***table, std::vector<std::string> expresion, NODE *
 
     if (AlreadyInTable(*table, element))
     {
-        free(node);
         free(element);
         return;
     }
@@ -196,13 +195,11 @@ void CHT_Init()
 
 void CHT_Insert(std::vector<std::string> expresion, NODE *node)
 {
-    printf("%d", expresion.size());
     Insert(&globalTable, expresion, node);
 }
 
 NODE *CHT_Search(std::vector<std::string> expresion)
 {
-    printf("uz to hlada\n");
     HASHNODE *element = SearchNode(globalTable, expresion);
 
     return element != NULL ? element->node : NULL;

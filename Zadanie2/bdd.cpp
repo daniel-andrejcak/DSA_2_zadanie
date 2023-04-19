@@ -215,9 +215,11 @@ void deleteSingleVar(std::vector<std::string>& myVector, char var[2])
 
 NODE *searchInHash(std::vector<std::string> myVector)
 {   
-    std::sort(myVector.begin(), myVector.end());
+    std::vector<std::string> vectorCopy = myVector;
 
-    std::set<std::string> set(myVector.begin(), myVector.end());
+    std::sort(vectorCopy.begin(), vectorCopy.end());
+
+    std::set<std::string> set(vectorCopy.begin(), vectorCopy.end());
 
     std::vector<std::string> sortedVector(set.begin(), set.end());    
 
@@ -228,9 +230,11 @@ NODE *searchInHash(std::vector<std::string> myVector)
 
 void insertToHash(std::vector<std::string> myVector, NODE *node)
 {
-    std::sort(myVector.begin(), myVector.end());
+    std::vector<std::string> vectorCopy = myVector;
 
-    std::set<std::string> set(myVector.begin(), myVector.end());
+    std::sort(vectorCopy.begin(), vectorCopy.end());
+
+    std::set<std::string> set(vectorCopy.begin(), vectorCopy.end());
 
     std::vector<std::string> sortedVector(set.begin(), set.end());
 
@@ -280,11 +284,9 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     if (node)
     {
         std::cout << "uz sa nasla taka "; 
-        //printVector(products);
-        std::cout << "pre premennu " << node->var << std::endl;
-
-        return node;
-    
+        printVector(products);
+        
+       return node;   
     }
     
     bool falseVar = true;
@@ -323,7 +325,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         deleteClause(products, var);
     
         std::cout << "obsah vektora po mazani klauzul je: " << std::endl;
-        //printVector(products);
+        printVector(products);
 
 
         int originalSize = products.size();
@@ -342,11 +344,11 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         deleteSingleVar(products, var);
 
         std::cout << "obsah vectora po mazani premennej je: " << std::endl;
-        //printVector(products);
+        printVector(products);
 
         if (products.size() < originalSize)
         {
-            free(node);
+            //free(node);
             nodeCount--;
 
             return trueNode;
@@ -357,16 +359,16 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         {
             node->low = recMakeBdd(poradie, products, indexPoradia);
 
-            //insertToHash(products, node->low);
+            insertToHash(products, node->low);
         }
         else
         {
             node->high = recMakeBdd(poradie, products, indexPoradia);
 
-            //insertToHash(products, node->high);
+            insertToHash(products, node->high);
         }
 
-        /*if(node->low == node->high)
+        if(node->low == node->high)
         {
             NODE *temp = node->low;
 
@@ -374,7 +376,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
             nodeCount--;
 
             return temp;
-        }*/
+        }
         
         return node;
     }
@@ -501,7 +503,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         //printf("%s %d", products[i], poradie[indexPoradia]);
         varIndex = products.at(i).find(poradie[indexPoradia]);
         std::cout << "hlada: "<< (char)(poradie[indexPoradia]) << " v: ";
-        //printVector(products);
+        printVector(products);
         //printf("%d", varIndex);
 
         if (varIndex != -1)
@@ -573,12 +575,12 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     }
     
 
-    if(!falseVar)
-        indexPoradia--;
+    /*if(!falseVar)
+        indexPoradia--;*/
 
     std::cout << "obsah vectorov je: " << std::endl;
-    //printVector(lowExpresion);
-    //printVector(highExpresion);
+    printVector(lowExpresion);
+    printVector(highExpresion);
 
     //insertToHash(products, node);
 
@@ -586,7 +588,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     {
         std::cout << "vectory sa rovnaju" << std::endl;
 
-        free(node);
+        //free(node);
         nodeCount--;
 
         return recMakeBdd(poradie, lowExpresion, indexPoradia + 1);
@@ -623,7 +625,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     if(node->low == node->high)
     {
         NODE *temp = node->low;
-        free(node);
+        //free(node);
         nodeCount--;
 
         return temp;
@@ -777,12 +779,18 @@ int main ()
     //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc";
     //std::string input = "abc+a\'c+b+b\'"; //skusa tautologie
     //std::string input = "a\'b\'c+a\'bc\'+a\'bc+ab\'c\'+ab\'c+abc\'+abc+a\'b\'c\'"; //aj komplikovanejsia tautologia funguje
-    //std::string input = "ab+cd+ef+gh";
-    std::string input = "abc"; //uz to zvladne aj jednu klauzulu
+    std::string input = "ab+cd+ef+gh";
+    //std::string input = "abc"; //uz to zvladne aj jednu klauzulu
     //std::string input = "aa\'bc"; //skuska kontradicie
+    //std::string input = "a\'bc\'d\'e\'h\'+ab\'gh\'+ab\'cde\'g\'+ad\'e\'g+abd\'eh\'+a\'bce\'gh\'";
+    //std::string input = "a\'i\'j\'kl\'no\'+ad\'e\'gm\'p+a\'ceg\'ik+a\'d\'f\'i\'j\'k\'l\'n\'q\'+acg\'i\'mq\'+a\'cde\'g\'k\'np\'+a\'bce\'gh\'mq+ac\'gj\'kl\'m\'o\'p+a\'ce\'g\'i\'mo\'+ac\'e\'fgj\'m\'pq\'+ad\'e\'f\'i\'mqr\'+acd\'i\'mo\'+a\'bc\'ghq\'+ac\'g\'i\'k\'m\'+c\'f\'g\'h\'i\'n\'pq\'";
+
+    //std::string input = "ab+a\'c+cb\'";
 
 
-    std::string postupnost = "abc";
+
+
+    std::string postupnost = "acegbdfh";
 
     BDD *bdd = BDD_create(input, postupnost);
     
@@ -816,4 +824,3 @@ int main ()
 
     return 0;
 }
-
