@@ -13,7 +13,7 @@
 
 #include "Chaining.h"
 
-
+#define CHARNUM 48
 #define NUMTOLETTER 49
 #define CHARTOINDEX 97
 
@@ -53,24 +53,19 @@ void InitLeafNodes(){
     CHT_Init();
 }
 
-int countVariables(std::string bfunkcia)
+char countVariables(std::string bfunkcia)
 {
-    int count = 0;
-    std::set<char> variables;
-    char currentChar;
+    char max = bfunkcia[0];
 
-    for (int i = 0; i < bfunkcia.size(); i++)
+    for (size_t i = 1; i < bfunkcia.size(); i++)
     {
-        currentChar = bfunkcia.at(i);
-
-        if (currentChar >= 'a' && currentChar <= 'z')
+        if (bfunkcia.at(i) > max && bfunkcia.at(i) != '\'' && bfunkcia.at(i) != '+')
         {
-            variables.insert(currentChar);
+            max = bfunkcia.at(i);
         }
-        
     }
     
-    return variables.size();
+    return max;
 }
 
 void splitDNFstring(std::string string, std::vector<std::string>& products)
@@ -85,7 +80,7 @@ void splitDNFstring(std::string string, std::vector<std::string>& products)
 }
 
 void printVector(std::vector<std::string> myVector){
-    for (int i = 0; i < myVector.size(); i++)
+    for (size_t i = 0; i < myVector.size(); i++)
     {
         std::cout << myVector.at(i)<< ", ";
     }
@@ -96,7 +91,7 @@ void printVector(std::vector<std::string> myVector){
 
 int checkForCredibility(std::vector<std::string> myVector, int index)
 {
-    for (int i = 0; i < myVector.size(); i++)
+    for (size_t i = 0; i < myVector.size(); i++)
     {
         if (myVector.at(i).find(myVector.at(index)[0]) == -1)
         {
@@ -109,7 +104,7 @@ int checkForCredibility(std::vector<std::string> myVector, int index)
 
 int ifSingleVar(std::vector<std::string> myVector, char var)
 {
-    for (int i = 0; i < myVector.size(); i++)
+    for (size_t i = 0; i < myVector.size(); i++)
     {
         int found = myVector.at(i).find(var);
 
@@ -135,7 +130,7 @@ int checkIfSingleVar(std::vector<std::string> myVector)
     std::string string;
     int index;
 
-    for (int i = 0; i < myVector.size(); i++)
+    for (size_t i = 0; i < myVector.size(); i++)
     {
         string = myVector.at(i);
 
@@ -159,7 +154,7 @@ int checkForSingleNegVar(std::vector<std::string> myVector)
 
 void deleteClause(std::vector<std::string>& myVector, char var[2])
 {
-    for (int i = 0; i < myVector.size(); i++)
+    for (size_t i = 0; i < myVector.size(); i++)
     {
         int index = myVector.at(i).find(var[0]);
 
@@ -189,7 +184,7 @@ void deleteClause(std::vector<std::string>& myVector, char var[2])
 
 void deleteSingleVar(std::vector<std::string>& myVector, char var[2])
 {
-    for (int i = 0; i < myVector.size(); i++)
+    for (size_t i = 0; i < myVector.size(); i++)
     {
         int index = myVector.at(i).find(var[0]);
 
@@ -226,6 +221,9 @@ NODE *searchInHash(std::vector<std::string> myVector)
     std::vector<std::string> sortedVector(set.begin(), set.end());    
 
     NODE *node = CHT_Search(sortedVector);
+
+    printVector(sortedVector);
+    std::cout << std::endl;
 
     return node;
 }
@@ -275,14 +273,14 @@ NODE *createNode(char var)
 
 NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int indexPoradia)
 {
-    if (products.size() == 0)
+    if (products.size() == 0 || products.empty())
     {
         falseNodeUsed = true;
         return falseNode;
     }
-    
-    NODE *node = searchInHash(products);
-    
+
+    NODE *node;
+
     bool falseVar = true;
 
     int singleVarIndex = ifSingleVar(products, poradie[indexPoradia]);
@@ -322,13 +320,20 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
             falseNodeUsed = true;
 
             std::vector<std::string> tempVector;
-            std::string tempString{poradie[indexPoradia]};
+            std::string tempString{var[0]};
+
+            if(var[1] == '\'')
+                tempString += '\'';
+
             tempVector.push_back(tempString);
 
             NODE *temp = searchInHash(tempVector);
 
             if (temp)
+            {
+                delete node;
                 return temp;
+            }
             
 
             insertToHash(tempVector, node);
@@ -342,7 +347,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
 
         if (products.size() < originalSize)
         {
-            //free(node);
+            delete node;
             nodeCount--;
 
             return trueNode;
@@ -384,7 +389,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         {
             NODE *temp = node->low;
 
-            free(node);
+            delete node;
             nodeCount--;
 
             return temp;
@@ -402,7 +407,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     node = createNode(poradie[indexPoradia]);    
 
     //shannon expansion + rozdelenie co ide do low a co do high
-    for (int i = 0; i < products.size(); i++)
+    for (size_t i = 0; i < products.size(); i++)
     {        
         //printf("%s %d", products[i], poradie[indexPoradia]);
         varIndex = products.at(i).find(poradie[indexPoradia]);
@@ -435,7 +440,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     }
 
     //osetrenie toho, ked sa v klauzule nachadzaju 2 rovnake premenne
-    for (int i = 0; i < lowExpresion.size(); i++)
+    for (size_t i = 0; i < lowExpresion.size(); i++)
     {
         varIndex = lowExpresion.at(i).find(poradie[indexPoradia]);
 
@@ -453,7 +458,7 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         }
     }
 
-    for (int i = 0; i < highExpresion.size(); i++)
+    for (size_t i = 0; i < highExpresion.size(); i++)
     {
         varIndex = highExpresion.at(i).find(poradie[indexPoradia]);
 
@@ -471,9 +476,10 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         }
     }
 
+
     if (compareVectors(lowExpresion, highExpresion))
     {
-        //free(node);
+        delete node;
         nodeCount--;
 
         NODE *temp = searchInHash(lowExpresion);
@@ -489,8 +495,18 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         return temp;
     }
     
+    std::cout << "/////////////////////" << std::endl;
+    printVector(lowExpresion);
+    printVector(highExpresion);
+    std::cout << "/////////////////////" << std::endl;
+    
     if (lowExpresion.size() != 0)
     {
+        std::cout << indexPoradia << "low ";
+        std::cout << "v tabulke sa hlada ";
+        printVector(lowExpresion);
+        std::cout << std::endl;
+
         NODE *temp = searchInHash(lowExpresion);
 
         if (temp == NULL)
@@ -501,11 +517,14 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         }
         else
         {
+            std::cout << "naslo ";
+            printVector(lowExpresion);
+            std::cout << std::endl;
+
             node->low = temp;
         }
-        
-
-    }else
+    }
+    else
     {
         node->low = falseNode;
         falseNodeUsed = true;
@@ -514,6 +533,11 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     
     if (highExpresion.size() != 0)
     {
+        std::cout << indexPoradia << "high ";
+        std::cout << "v tabulke sa hlada ";
+        printVector(highExpresion);
+        std::cout << std::endl;
+
         NODE *temp = searchInHash(highExpresion);
 
         if (temp == NULL)
@@ -524,10 +548,15 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
         }
         else
         {
+            std::cout << "naslo ";
+            printVector(highExpresion);
+            std::cout << std::endl;
+
             node->high = temp;
         }
 
-    }else
+    }
+    else
     {
         node->high = falseNode;
         falseNodeUsed = true;
@@ -536,7 +565,8 @@ NODE *recMakeBdd(std::string poradie, std::vector<std::string> products, int ind
     if(node->low == node->high)
     {
         NODE *temp = node->low;
-        //free(node);
+
+        delete node;
         nodeCount--;
 
         return temp;
@@ -567,7 +597,7 @@ BDD *BDD_create(std::string bfunkcia, std::string poradie)
     BDD *bdd = (BDD *)malloc(sizeof(BDD));
 
     bdd->root = root;
-    bdd->varCount = countVariables(bfunkcia);
+    bdd->varCount = countVariables(bfunkcia) - CHARTOINDEX + 1;
 
     if (trueNodeUsed)
         nodeCount++;
@@ -594,17 +624,20 @@ BDD *BDD_create_with_best_order (std::string bfunkcia)
     BDD *bdd;
 
     //aspon tolko pokusov kolko je premennych
-    int varCount = countVariables(bfunkcia);
+    char varCount = countVariables(bfunkcia);
 
     std::string poradie;
     std::string bestPoradie;
     int bestNodeCount = 0;
 
     //vytvorenie prveho poradia
-    for (int i = 0; i < varCount; i++)
+    for (size_t i = CHARTOINDEX; i < varCount + 1; i++)
     {
-        poradie += i + 97;
+        poradie += i;
     }
+    
+    std::cout << poradie;
+    std::cout << std::endl;
 
     bdd = BDD_create(bfunkcia, poradie);
 
@@ -617,11 +650,11 @@ BDD *BDD_create_with_best_order (std::string bfunkcia)
     std::cout << std::endl;
 
     //linearne posuva premenne
-    for (int i = 0; i < varCount - 1; i++)
+    for (size_t i = 0; i < poradie.size(); i++)
     {
-        poradie.insert(0, 1, poradie[varCount - 1]);
+        poradie.insert(0, 1, poradie[poradie.size() - 1]);
 
-        poradie.erase(varCount, 1);
+        poradie.erase(poradie.size() - 1, 1);
 
         bdd = BDD_create(bfunkcia, poradie);
 
@@ -645,7 +678,7 @@ BDD *BDD_create_with_best_order (std::string bfunkcia)
 }
 
 //char *vstupy treba zadat ako string cisel, kde cislo na prvom indexe je hodnota premennej 'a', na druhom indexe premenna 'b',... 
-char BDD_use (BDD *bdd, std::string vstupy)
+int BDD_use (BDD *bdd, std::string vstupy)
 {
     NODE *node = bdd->root;
     char variable;
@@ -657,7 +690,8 @@ char BDD_use (BDD *bdd, std::string vstupy)
         if (variable == '0')
         {
             node = node->low;
-        }else
+        }
+        else
         {
             node = node->high;
         }
@@ -665,19 +699,19 @@ char BDD_use (BDD *bdd, std::string vstupy)
     
     if (node == trueNode)
     {
-        return '1';
+        return 1;
     }else if (node == falseNode)
     {
-        return '0';
+        return 0;
     }
     
-    std::cout << "chyba2\n";
-    exit(0);
+    std::cout << "chyba\n";
+    return -1;
 }
 
 void vektorPrint(BDD *bdd)
 {   
-    for (int i = 0; i < pow(2, bdd->varCount); i++)
+    for (size_t i = 0; i < pow(2, bdd->varCount); i++)
     {
         std::string values = std::bitset<16>(i).to_string();
         values.erase(values.begin(), values.end() - bdd->varCount);
@@ -686,7 +720,76 @@ void vektorPrint(BDD *bdd)
     }
 }
 
-int main()
+//dosadi do bool funkcie 1 / 0 podla vstupu a vrati vysledok
+unsigned int setValues(std::string bfunkcia, std::string values)
+{
+    size_t pocetKlauzul = std::count(bfunkcia.begin(), bfunkcia.end(), '+');
+
+    pocetKlauzul++;
+
+    unsigned int *productsArray = new unsigned int[pocetKlauzul];
+
+    for (size_t i = 0; i < pocetKlauzul; i++)
+        productsArray[i] = 1;
+    
+
+    int productsArrayIndex = 0;
+
+    for (size_t i = 0; i < bfunkcia.size(); i++)
+    {
+        if (bfunkcia.at(i) == '+')
+        {
+            productsArrayIndex++;
+        }
+        else if (bfunkcia.at(i) >= 97 && bfunkcia.at(i) <= 122)
+        {
+            if (i + 1 != bfunkcia.size() && bfunkcia.at(i + 1) == '\'')
+            {
+                productsArray[productsArrayIndex] *= !(values[bfunkcia.at(i) - CHARTOINDEX] - CHARNUM);
+                
+                i++;
+            }
+            else
+            {
+                productsArray[productsArrayIndex] *= values[bfunkcia.at(i) - CHARTOINDEX] - CHARNUM;
+            }        
+        }
+    }
+
+
+    unsigned int sum = 0;
+
+    for (size_t i = 0; i < pocetKlauzul; i++)
+    {
+        sum |= productsArray[i];
+    }
+    
+    return sum;
+}
+
+void tester(std::string bfunkcia, BDD *bdd)
+{
+    for (size_t i = 0; i < pow(2, bdd->varCount); i++)
+    {
+        std::string values = std::bitset<20>(i).to_string();
+        values.erase(values.begin(), values.end() - bdd->varCount);
+
+        if (setValues(bfunkcia, values) != BDD_use(bdd, values))
+        {
+            //std::cout << "Chyba pri vstupe " << values << std::endl;
+            std::cout << "Chyba pri funkcii " << bfunkcia << std::endl;
+
+            return;
+        }
+    }
+
+    std::cout << "BDD je vytvoreny bez chyby" << std::endl;
+    
+    return;
+}
+
+
+/*int main()
 {
     int integer = 0;
     char character = 0;
@@ -731,7 +834,7 @@ int main()
             file.open(inputFile);
 
             //vytvorenie poradia, podla ktoreho sa spravi BDD
-            for (int i = 0; i < 24; i++)
+            for (size_t i = 0; i < 24; i++)
             {
                 poradie += i + 97;
             }
@@ -771,6 +874,8 @@ int main()
 
             file.open(inputFile);
 
+            std::cout << inputFile << std::endl;
+
             while (file)
             {
                 file >> bfunkcia;
@@ -791,6 +896,45 @@ int main()
 
             break;
 
+
+        case 't':
+            std::cout << "zadajte pocet premennych, pre ktore sa vykona test (minimalne 3, maximalne 20)" << std::endl;
+            std::cin >> pocetPremennych;
+
+            if(pocetPremennych < 10)
+            {
+                inputFile += pocetPremennych + 48;
+            }else
+            {
+                inputFile += (pocetPremennych / 10) + 48;
+                inputFile += (pocetPremennych % 10) +48;
+            }
+
+            inputFile += ".txt";
+
+            file.open(inputFile);
+
+            //vytvorenie poradia, podla ktoreho sa spravi BDD
+            for (size_t i = 0; i < 24; i++)
+            {
+                poradie += i + 97;
+            }
+
+            while (file)
+            {
+                file >> bfunkcia;
+
+                BDD *bdd = BDD_create(bfunkcia, poradie);
+
+                tester(bfunkcia, bdd);
+
+                freeMem(bdd);
+            }
+
+
+            break;
+
+
         case '3':
             std::cout << "zadajte boolovsku funkciu pre BDD" << std::endl;
             std:: cin >> bfunkcia;
@@ -799,10 +943,10 @@ int main()
             std::cout << "vyberte si funkciu" << std::endl << "1 - BDD_create" << std::endl << "2 - BDD_create_with_best_order" << std::endl;
             std::cin >> secSwitchTemp;
 
-            if (secSwitchTemp = '1')
+            if (secSwitchTemp == '1')
             {
                 bdd = BDD_create(bfunkcia, poradie);
-            }else if (secSwitchTemp = '2')
+            }else if (secSwitchTemp == '2')
             {
                 bdd = BDD_create_with_best_order(bfunkcia);
             }else
@@ -847,9 +991,9 @@ int main()
     }    
 }  
 
+*/
 
-
-/*int main ()
+int main ()
 {
     InitLeafNodes();
 
@@ -868,29 +1012,26 @@ int main()
     //std::string input = "ab+a\'d+db\'";
 
     //std::string input = "a\'fj\'oqst\'+acf\'g\'ops+f+f\'+a\'b\'emp\'qr\'+a\'ij\'lqt\'+eg\'i\'jkmp+aem\'no\'p\'q\'+ac\'ef\'g\'j\'n\'qt+a\'e\'giq\'r\'s+a\'e\'gk\'lp\'+ac\'gikl\'rt+d\'f\'h\'imo\'pq\'+a\'cdf\'kno\'p\'+aop\'q";
-    std::string input = "a\'bdghk\'lm+a\'b\'di\'k\'l+ad\'fijk\'l\'+ab\'c\'d\'e\'f\'gjm+a\'de\'f\'g\'h\'il\'m+a\'b\'d\'e\'fh\'l\'m\'+be\'fghi\'jk\'m\'+a\'ce\'f\'g\'ikl\'+ad\'eh\'m\'";
+    //std::string input = "adfj\'k\'l\'m\'+a\'b\'c\'dgk\'+a\'d\'i\'lm+ade\'f\'gkl\'+c\'dfg\'j\'kl\'o+abdgj\'km\'no+a\'b\'d\'e\'f\'g\'j\'km\'+a\'b\'dgj\'lmo\'+a\'b\'d\'l\'m";
+    //std::string input = "ad\'ef\'i\'k\'m\'oq\'+a\'cgij\'m\'o\'+ac\'e\'f\'g\'ilm\'op+adjkmqr+ac\'j\'l\'mo\'qr\'+ac\'ej\'m\'n\'op\'+ag\'i\'j\'m\'o\'p\'+a\'f\'i\'j\'lmp\'+dgjk\'mop\'+aeiq+acgj\'km\'o\'q+agm\'op\'+ag\'h\'jm\'q+ad\'e\'g\'knoq\'+a\'cdf\'ij\'klm\'o";
+    std::string input = "abc+a\'bc+a\'b\'c\'";
 
-    //std::string input = "ac\'+abc+a\'b+b\'c";
-
-
-
-    std::string postupnost = "abcdefghijklmnopqrst";
+    std::string postupnost = "abc";
 
     BDD *bdd = BDD_create(input, postupnost);
-    std::cout << "\npocet premennych " << countVariables(input) << std::endl;
+    std::cout << "\npocet premennych " << bdd->varCount << std::endl;
     std::cout << "pocet uzlov " << bdd->nodeCount << std::endl;
 
-    //test(bdd);
+    vektorPrint(bdd);
     
     std::cout << std::endl;
 
     //visualize();
 
+    tester(input, bdd);
 
-
-    std::cout << "pohoda uz to vymazalo" << std::endl;
     freeMem(bdd);
+    std::cout << "pohoda uz to vymazalo" << std::endl;
     
     return 0;
 }
-*/
