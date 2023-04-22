@@ -63,7 +63,6 @@ int kokot()
                     output += var;
                     if (rand() % 2 == 0)
                     {
-                        output += '\\';
                         output += '\'';
                     }
                 }

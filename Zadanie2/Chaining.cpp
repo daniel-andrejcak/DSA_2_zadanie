@@ -144,7 +144,7 @@ static void ChangeTableSize(HASHNODE ***table)
             node = temp;
         }
     }
-    free(*table);
+    delete(*table);
 
     *table = newTable;
     nodeCount = oldNodeCount;
@@ -157,7 +157,7 @@ static void Insert(HASHNODE ***table, std::vector<std::string> expresion, NODE *
 
     if (AlreadyInTable(*table, element))
     {
-        free(element);
+        delete element;
         return;
     }
     
@@ -175,13 +175,12 @@ static void FreeMem(HASHNODE ***table)
             HASHNODE *temp = (*table)[i];
             (*table)[i] = (*table)[i]->next;
             
-            free(temp->node);
-            free(temp);
+            delete temp;
             temp = NULL;
+
         }
     }
-
-    free(*table);
+    delete (*table);
     *table = NULL;
 
     tableSize = 2;
