@@ -610,9 +610,6 @@ BDD *BDD_create_with_best_order (std::string bfunkcia)
     {
         poradie += i;
     }
-    
-    std::cout << poradie;
-    std::cout << std::endl;
 
     bdd = BDD_create(bfunkcia, poradie);
 
@@ -620,9 +617,6 @@ BDD *BDD_create_with_best_order (std::string bfunkcia)
     bestPoradie = poradie;
 
     freeMem(bdd);
-
-    std::cout << poradie;
-    std::cout << std::endl;
 
     //linearne posuva premenne
     for (size_t i = 0; i < poradie.size(); i++)
@@ -646,8 +640,8 @@ BDD *BDD_create_with_best_order (std::string bfunkcia)
     //znova vytvori najlepsi BDD
     bdd = BDD_create(bfunkcia, bestPoradie);
 
-    std::cout << bestPoradie << std::endl;
-
+    //uncomment ak sa ma printovat najlepsie poradie
+    //std::cout << bestPoradie << std::endl;
 
     return bdd;
 }
@@ -710,6 +704,7 @@ unsigned int setValues(std::string bfunkcia, std::string values)
 
     int productsArrayIndex = 0;
 
+
     for (size_t i = 0; i < bfunkcia.size(); i++)
     {
         if (bfunkcia.at(i) == '+')
@@ -758,11 +753,11 @@ void tester(std::string bfunkcia, BDD *bdd)
         }
     }
 
-    std::cout << "BDD je vytvoreny bez chyby" << std::endl;
+    std::cout << "pre funkciu " << bfunkcia << std::endl;
+    std::cout << " je BDD vytvoreny bez chyby" << std::endl;
     
     return;
 }
-
 
 int main()
 {
@@ -785,7 +780,7 @@ int main()
 
     while (1)
     {
-        std::cout << "Zadajte prikaz :" << std::endl << "1 - BDD_create test" << std::endl << "2 - BDD_create_with_best_order test" << std::endl << "3 - vlastny vstup pre BDD" << std::endl << "k - koniec programu" << std::endl;
+        std::cout << "Zadajte prikaz :" << std::endl << "1 - BDD_create test" << std::endl << "2 - BDD_create_with_best_order test"  << "t - tester" << std::endl << std::endl << "v - vlastny vstup pre BDD" << std::endl << "k - koniec programu" << std::endl;
 
         std::cin >> switchTemp;
 
@@ -857,7 +852,6 @@ int main()
 
                 auto start = std::chrono::steady_clock::now();
 
-
                 BDD *bdd = BDD_create_with_best_order(bfunkcia);
 
                 auto end = std::chrono::steady_clock::now(); 
@@ -910,7 +904,7 @@ int main()
             break;
 
 
-        case '3':
+        case 'v':
             std::cout << "zadajte boolovsku funkciu pre BDD" << std::endl;
             std:: cin >> bfunkcia;
             std::cout << "zadajte poradie v ktorom sa ma vytvorit BDD" << std::endl;
@@ -944,11 +938,11 @@ int main()
         case 'k':
             std::cout << "koniec programu" << std::endl;
 
-            //freeMem(bdd);
-            //delete trueNode;
-            //delete falseNode;
-            //CHT_FreeMem();
-            
+            CHT_FreeMem();
+            delete bdd->root;
+            delete bdd;
+            delete trueNode;
+            delete falseNode;
             
             return 0;
 
